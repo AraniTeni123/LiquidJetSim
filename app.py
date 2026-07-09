@@ -34,7 +34,7 @@ EPS0, MU0 = 8.854e-12, 4 * np.pi * 1e-7
 
 st.markdown(f"""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
 
 .stApp {{
     background:
@@ -42,7 +42,7 @@ st.markdown(f"""
         radial-gradient(900px 700px at 108% 0%, rgba(176,112,240,0.10), transparent 55%),
         {BG};
     color: {TEXT};
-    font-family: 'Space Grotesk', sans-serif;
+    font-family: 'Inter', sans-serif;
     font-weight: 400;
 }}
 #MainMenu, footer {{ visibility: hidden; }}
@@ -58,12 +58,12 @@ section[data-testid="stSidebar"] * {{ color: {TEXT} !important; }}
 [data-testid="collapsedControl"] {{ visibility: visible !important; color: {CYAN} !important; }}
 section[data-testid="stSidebar"] label p {{ color: {MUTE} !important; font-size: .82rem; }}
 
-h1,h2,h3 {{ font-family:'Space Grotesk',sans-serif; font-weight:500; letter-spacing:.2px; }}
+h1,h2,h3 {{ font-family:'Inter',sans-serif; font-weight:500; letter-spacing:.2px; }}
 
 .hero-title {{ font-size:2.3rem; font-weight:600; line-height:1.06; margin:0;
     background:linear-gradient(92deg,{CYAN},{VIOLET} 55%,{LIME});
     -webkit-background-clip:text; -webkit-text-fill-color:transparent; }}
-.hero-sub {{ color:{MUTE}; font-family:'JetBrains Mono',monospace; font-weight:400;
+.hero-sub {{ color:{MUTE}; font-family:'IBM Plex Mono',monospace; font-weight:400;
     font-size:.8rem; letter-spacing:2px; text-transform:uppercase; }}
 .hero-rule {{ height:1px; margin:.9rem 0 1.2rem 0;
     background:linear-gradient(90deg,{CYAN},transparent); }}
@@ -72,14 +72,14 @@ div[data-testid="stMetric"] {{
     background:linear-gradient(160deg, rgba(255,255,255,0.035), rgba(255,255,255,0.01));
     border:1px solid {GRID}; border-radius:14px; padding:14px 16px;
     box-shadow:0 10px 30px rgba(0,0,0,0.30); }}
-div[data-testid="stMetricValue"] {{ font-family:'JetBrains Mono',monospace;
+div[data-testid="stMetricValue"] {{ font-family:'IBM Plex Mono',monospace;
     font-weight:500; color:{CYAN}; }}
 div[data-testid="stMetricLabel"] {{ color:{MUTE}; }}
 
-.sec {{ font-family:'JetBrains Mono',monospace; font-weight:400; font-size:.75rem;
+.sec {{ font-family:'IBM Plex Mono',monospace; font-weight:400; font-size:.75rem;
     letter-spacing:3px; text-transform:uppercase; color:{VIOLET}; margin:1.6rem 0 .3rem 0; }}
 .sec-title {{ font-size:1.3rem; font-weight:500; margin:0 0 .6rem 0; }}
-.chip {{ display:inline-block; font-family:'JetBrains Mono',monospace; font-weight:400;
+.chip {{ display:inline-block; font-family:'IBM Plex Mono',monospace; font-weight:400;
     font-size:.72rem; padding:2px 10px; border-radius:999px; margin:0 6px 6px 0;
     border:1px solid {GRID}; color:{MUTE}; }}
 .card {{ background:rgba(255,255,255,0.02); border:1px solid {GRID}; border-radius:14px;
@@ -93,7 +93,7 @@ div[data-testid="stMetricLabel"] {{ color:{MUTE}; }}
 
 def dark_layout(fig, height=420, title=None):
     fig.update_layout(template="plotly_dark", paper_bgcolor=PANEL, plot_bgcolor=PANEL,
-                      font=dict(family="JetBrains Mono, monospace", color=TEXT, size=12),
+                      font=dict(family="IBM Plex Mono, monospace", color=TEXT, size=12),
                       colorway=COLORWAY, height=height, title=title,
                       margin=dict(l=12, r=12, t=40 if title else 14, b=12))
     fig.update_xaxes(gridcolor=GRID, zerolinecolor=GRID)
@@ -103,6 +103,31 @@ def dark_layout(fig, height=420, title=None):
 
 FUTURE_SCALE = [[0.0, "#05060a"], [0.25, "#123047"], [0.5, "#0e7490"],
                 [0.75, "#38d6ee"], [1.0, "#e0fbff"]]
+
+
+def shape_fig(ns, phases=None, amp=0.32, color=CYAN, height=260, title=None):
+    """Closed cross-section outline r(theta) = 1 + sum amp*cos(n theta + phase)."""
+    th = np.linspace(0, 2 * np.pi, 500)
+    r = np.ones_like(th)
+    phases = phases or [0.0] * len(ns)
+    for n, ph in zip(ns, phases):
+        if n != 0:                       # n=0 is axisymmetric -> a circle
+            r = r + amp * np.cos(n * th + ph)
+    x, y = r * np.cos(th), r * np.sin(th)
+    fig = go.Figure(go.Scatter(x=x, y=y, mode="lines", fill="toself",
+                               line=dict(color=color, width=2.4),
+                               fillcolor="rgba(56,214,238,0.10)"))
+    fig.update_layout(template="plotly_dark", paper_bgcolor=PANEL, plot_bgcolor=PANEL,
+                      height=height, title=title, showlegend=False,
+                      margin=dict(l=8, r=8, t=34 if title else 8, b=8),
+                      font=dict(family="IBM Plex Mono, monospace", color=TEXT, size=11))
+    fig.update_xaxes(visible=False, range=[-1.6, 1.6])
+    fig.update_yaxes(visible=False, range=[-1.6, 1.6], scaleanchor="x", scaleratio=1)
+    return fig
+
+
+SUPERPOSITION = {"n=2 + n=3  (heart)": (2, 3), "n=2 + n=4  (bowtie)": (2, 4),
+                 "n=3 + n=4  (jagged)": (3, 4), "n=2 + n=3 + n=4  (star)": (2, 3, 4)}
 
 # ----------------------------------------------------------------------
 # Sidebar : navigation + parameters
@@ -207,6 +232,7 @@ Lb     = 2.9 * R0 * np.sqrt(max(We, 1e-6)) * 2.3              # eta0/R ~ 0.1
 # Live falling-jet animation (HTML5 canvas)
 # ----------------------------------------------------------------------
 _ANIM_TEMPLATE = r"""
+<!-- sig __SIG__ -->
 <div id="wrap" style="width:100%;background:__PANEL__;border:1px solid __GRID__;
      border-radius:14px;overflow:hidden;">
   <canvas id="jet" style="display:block;width:100%;height:540px;"></canvas>
@@ -218,11 +244,12 @@ const ctx = cv.getContext('2d');
 function fit(){ const w = cv.clientWidth; cv.width = w; cv.height = 540; }
 fit(); window.addEventListener('resize', fit);
 
-const g = 9.81, A0 = 0.045;
-const Zmax_mm = Math.min(Math.max(P.Lb_mm*1.3, 55), 400);
+const g = 9.81, A0 = 0.05;
+// Fixed physical window (mm) so parameter changes are visible, not self-similar.
+const Zmax_mm = 350.0;
 
 function Rz_mm(zm){ return P.R0mm * Math.sqrt(P.v0/(P.v0 + g*zm)); }
-function amp(zm){ return Math.min(A0*Math.exp(P.s*zm/P.v0), 0.9); }
+function amp(zm){ return Math.min(A0*Math.exp(P.s*zm/P.v0), 0.92); }
 
 let t0 = null;
 function frame(ts){
@@ -231,11 +258,10 @@ function frame(ts){
   const W = cv.width, H = cv.height, cx = W*0.5;
   ctx.clearRect(0,0,W,H);
 
-  const pxPerMm = H / Zmax_mm;
-  const maxR = P.R0mm*1.9;
-  const rScale = Math.min(4.0, (0.36*W)/(maxR));
+  const pxPerMm = H / Zmax_mm;             // fixed vertical scale
+  const rScale = Math.max(2.2, Math.min(5.0, W/200.0));  // px per mm, R0-independent
   const k = 2*Math.PI/(P.lam_mm/1000.0);   // 1/m
-  const zb_mm = Math.min(P.Lb_mm, Zmax_mm*0.82);
+  const zb_mm = Math.min(P.Lb_mm, Zmax_mm);
 
   // nozzle
   ctx.fillStyle = '#161c28';
@@ -276,13 +302,17 @@ function frame(ts){
     ctx.shadowBlur = 0; ctx.globalAlpha = 1.0;
   }
 
-  // break-up marker
-  ctx.strokeStyle = P.mute; ctx.setLineDash([4,5]); ctx.lineWidth = 1;
-  ctx.beginPath(); ctx.moveTo(0, zb_mm*pxPerMm); ctx.lineTo(W, zb_mm*pxPerMm);
-  ctx.stroke(); ctx.setLineDash([]);
+  // break-up marker (only if break-up happens within the 35 cm window)
   ctx.fillStyle = P.mute; ctx.font = "11px monospace";
-  ctx.fillText("break-up  Lb = " + (P.Lb_mm/10).toFixed(0) + " cm", 8, zb_mm*pxPerMm - 6);
-  ctx.fillText("lambda = " + P.lam_mm.toFixed(1) + " mm", 8, 24);
+  if(P.Lb_mm < Zmax_mm){
+    ctx.strokeStyle = P.mute; ctx.setLineDash([4,5]); ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(0, zb_mm*pxPerMm); ctx.lineTo(W, zb_mm*pxPerMm);
+    ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillText("break-up  Lb = " + (P.Lb_mm/10).toFixed(0) + " cm", 8, zb_mm*pxPerMm - 6);
+  } else {
+    ctx.fillText("Lb = " + (P.Lb_mm/10).toFixed(0) + " cm  (below view)", 8, H - 10);
+  }
+  ctx.fillText("lambda = " + P.lam_mm.toFixed(1) + " mm   |   view 35 cm", 8, 24);
 
   requestAnimationFrame(frame);
 }
@@ -310,16 +340,29 @@ if page == "Simulator":
                 f"<span class='chip'>Bo_M {Gamma_M:.2f}</span>"
                 f"<span class='chip'>Oh {Oh:.3f}</span>", unsafe_allow_html=True)
 
-    # -------- live animated falling jet --------
+    # -------- live animated falling jet (gated) --------
     st.markdown("<div class='sec'>module 00</div>", unsafe_allow_html=True)
     st.markdown("<div class='sec-title'>Live falling jet</div>", unsafe_allow_html=True)
 
-    params = dict(R0mm=1e3*R0, lam_mm=1e3*lam_rp, s=s_dim, v0=v0, Lb_mm=1e3*Lb,
-                  cyan=CYAN, violet=VIOLET, panel=PANEL, grid=GRID, mute=MUTE)
-    anim = (_ANIM_TEMPLATE
-            .replace("__PARAMS__", json.dumps(params))
-            .replace("__PANEL__", PANEL).replace("__GRID__", GRID))
-    components.html(anim, height=560)
+    run_jet = st.toggle("Run live jet", value=False,
+                        help="Choose your parameters in the control deck, then switch this "
+                             "on. The animation updates live as you change the sliders.")
+    if run_jet:
+        params = dict(R0mm=1e3*R0, lam_mm=1e3*lam_rp, s=s_dim, v0=v0, Lb_mm=1e3*Lb,
+                      cyan=CYAN, violet=VIOLET, panel=PANEL, grid=GRID, mute=MUTE)
+        # a param signature forces the iframe to reload when anything changes
+        sig = f"{R0:.4f}-{v0:.3f}-{sigma:.4f}-{Gamma_E:.3f}-{Gamma_M:.3f}-{mu:.3f}"
+        anim = (_ANIM_TEMPLATE
+                .replace("__SIG__", sig)
+                .replace("__PARAMS__", json.dumps(params))
+                .replace("__PANEL__", PANEL).replace("__GRID__", GRID))
+        components.html(anim, height=560)
+    else:
+        st.markdown(
+            f"<div class='card'><h4>Live jet is paused</h4><p>Set the fluid, jet, viscosity "
+            f"and field parameters in the control deck on the left, then switch on "
+            f"<b>Run live jet</b>. The stream, neck spacing (lambda), break-up length and "
+            f"drops all update as you move the sliders.</p></div>", unsafe_allow_html=True)
 
     # -------- cross-section heatmaps --------
     tspan = np.linspace(0, 0.5, 600)
@@ -368,6 +411,40 @@ if page == "Simulator":
                 "An axial electric field shrinks the unstable band (stabilising); a normal "
                 "magnetic field on a ferrofluid widens it (destabilising). Adjust the sliders "
                 "and watch kR and the jet respond.</span>", unsafe_allow_html=True)
+
+    # -------- cross-section mode shapes --------
+    st.markdown("<div class='sec'>module 03</div>", unsafe_allow_html=True)
+    st.markdown("<div class='sec-title'>Cross-section mode shapes</div>",
+                unsafe_allow_html=True)
+    st.markdown(f"<span style='color:{MUTE}'>Each azimuthal mode deforms the circular "
+                "cross-section as r(theta) = R (1 + eps cos n theta). n=0 stays circular "
+                "(it necks along the jet instead); n=2,3,4 give the lobed shapes below.</span>",
+                unsafe_allow_html=True)
+    shape_modes = [n for n in [0, 2, 3, 4] if n in modes] or [0, 2, 3, 4]
+    scols = st.columns(len(shape_modes))
+    for col, n in zip(scols, shape_modes):
+        label = "n = 0 (circular / necking)" if n == 0 else f"n = {n}"
+        col.plotly_chart(shape_fig([n], title=label), width='stretch')
+
+    st.markdown("<div class='sec'>module 04</div>", unsafe_allow_html=True)
+    st.markdown("<div class='sec-title'>Superposition of modes</div>", unsafe_allow_html=True)
+    sc1, sc2 = st.columns([1, 1])
+    combo_key = sc1.selectbox("Mode combination", list(SUPERPOSITION.keys()))
+    phase = sc2.slider("Relative phase  [deg]", 0, 360, 90, 10)
+    combo = SUPERPOSITION[combo_key]
+    phases = [0.0] + [np.deg2rad(phase)] * (len(combo) - 1)
+    gcol1, gcol2 = st.columns([1, 1])
+    gcol1.plotly_chart(shape_fig(list(combo), phases=phases, color=VIOLET, height=340,
+                                 title=combo_key), width='stretch')
+    gcol2.markdown(
+        f"<div class='card'><h4>Why the shape morphs</h4>"
+        f"<p>Linear theory lets modes add: r(theta) = R + delta1 cos(n1 theta) + "
+        f"delta2 cos(n2 theta + phi). Each mode has its own frequency omega_n, so the "
+        f"relative phase phi drifts as the jet falls and the cross-section continuously "
+        f"morphs. A glass lip seeds several modes at once, which is why real pours show "
+        f"hearts, bowties and star-like sections rather than a single clean lobe.</p>"
+        f"<p style='color:{MUTE}'>Current: {combo_key}, phase {phase} deg.</p></div>",
+        unsafe_allow_html=True)
 
 # ======================================================================
 # PAGE : PHYSICAL INSIGHTS

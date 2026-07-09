@@ -4,7 +4,7 @@
 Rayleigh–Plateau instability and the higher azimuthal capillary modes that shape a
 falling stream of water.
 
-Team **Samudramanthan** · Mentor: Mainak Chandra · Ensemble Young Physicists'
+Team **Samudramanthan** · Ensemble Young Physicists'
 Tournament 2026.
 
 **Live app:** https://liquidjetsim-skknpbrhdpstmjxh4viqel.streamlit.app/
