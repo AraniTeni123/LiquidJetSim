@@ -1,4 +1,4 @@
-streamlit
-numpy
-scipy
-plotly
+streamlit>=1.30
+numpy>=1.24
+scipy>=1.10
+plotly>=5.18
